@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="de" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interaktive Analyse: Dr. Huber & "Klima-Wahrheit"</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Harmony -->
+    <!-- Application Structure Plan: A multi-section, single-page application navigated by a top bar. The structure is designed to guide the user through a critical evaluation: 1. Introduction (setting the stage), 2. Author & Book Profile (juxtaposing credentials vs. claims), 3. Interactive Fact-Check (directly comparing theses to scientific consensus with visuals), 4. The Consensus Explained (detailing the scientific agreement), 5. Conclusion (summarizing the findings). This thematic structure prioritizes comparison and critical analysis over the linear format of the source report, making the core contradictions more accessible and understandable for the user. -->
+    <!-- Visualization & Content Choices: Report Info -> Goal -> Viz/Presentation Method -> Interaction -> Justification -> Library/Method. 1. Author's lack of expertise vs. book's claims -> Inform -> Side-by-side profile cards -> Static display -> Highlights the mismatch between author's background and subject matter -> HTML/CSS. 2. Book's thesis on CO2 vs. reality -> Compare/Refute -> Interactive line chart showing Temperature vs. CO2 vs. Solar Activity -> User can see the strong correlation between CO2/temp and the lack of correlation with solar -> Visually debunks a key claim -> Chart.js/Canvas. 3. Scientific consensus level -> Inform -> Donut chart showing 97% agreement -> Click/Hover -> Provides immediate, powerful visual impact of the overwhelming consensus -> Chart.js/Canvas. 4. Book's theses vs. scientific facts -> Compare/Organize -> Interactive tab/card system -> User clicks a claim to reveal a side-by-side refutation -> Breaks down the complex report into digestible, focused comparisons -> HTML/CSS/JS. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+            color: #212529;
+        }
+        .nav-link {
+            transition: color 0.3s, border-bottom-color 0.3s;
+        }
+        .nav-link.active {
+            color: #3b82f6;
+            border-bottom-color: #3b82f6;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 450px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header id="header" class="bg-white/80 backdrop-blur-md sticky top-0 z-50 shadow-sm">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <span class="font-bold text-xl text-gray-800">Analyse | Klima-Wahrheit</span>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#home" class="nav-link px-3 py-2 rounded-md text-sm font-semibold text-gray-600 hover:text-blue-600 border-b-2 border-transparent">Einleitung</a>
+                        <a href="#profil" class="nav-link px-3 py-2 rounded-md text-sm font-semibold text-gray-600 hover:text-blue-600 border-b-2 border-transparent">Autor & Buch</a>
+                        <a href="#faktencheck" class="nav-link px-3 py-2 rounded-md text-sm font-semibold text-gray-600 hover:text-blue-600 border-b-2 border-transparent">Faktencheck</a>
+                        <a href="#konsens" class="nav-link px-3 py-2 rounded-md text-sm font-semibold text-gray-600 hover:text-blue-600 border-b-2 border-transparent">Der Konsens</a>
+                        <a href="#fazit" class="nav-link px-3 py-2 rounded-md text-sm font-semibold text-gray-600 hover:text-blue-600 border-b-2 border-transparent">Fazit</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section id="home" class="py-20 md:py-28 bg-white">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <h1 class="text-4xl md:text-5xl font-bold text-gray-900 leading-tight">Dr. Werner Huber & "Klima-Wahrheit"</h1>
+                <p class="mt-4 text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">Eine interaktive Analyse zur wissenschaftlichen Einordnung des Buches und seines Autors im Kontext des aktuellen Klimawissens.</p>
+                <p class="mt-2 text-base text-gray-500 max-w-3xl mx-auto">Diese Seite bereitet die Ergebnisse eines Rechercheberichts auf, um die Behauptungen des Buches dem wissenschaftlichen Konsens gegenüberzustellen.</p>
+                <div class="mt-8">
+                    <a href="#faktencheck" class="bg-blue-600 text-white font-bold py-3 px-8 rounded-full hover:bg-blue-700 transition-colors duration-300">Direkt zum Faktencheck</a>
+                </div>
+            </div>
+        </section>
+
+        <section id="profil" class="py-20 md:py-24">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl font-bold text-gray-900">Autor, Buch & Verlag</h2>
+                    <p class="mt-3 text-lg text-gray-600 max-w-2xl mx-auto">Eine Gegenüberstellung des Autors und seiner Expertise mit den Thesen seines Buches und dem ideologischen Kontext des Verlags.</p>
+                </div>
+                <div class="grid md:grid-cols-2 gap-12 items-start">
+                    <div class="bg-white p-8 rounded-xl shadow-lg border border-gray-200">
+                        <h3 class="text-2xl font-bold text-gray-800 mb-4">Der Autor: Dr. Werner Huber</h3>
+                        <div class="space-y-4 text-gray-700">
+                            <p><strong class="font-semibold text-gray-900">Akademischer Hintergrund:</strong> Physiker.</p>
+                            <p><strong class="font-semibold text-gray-900">Publizierte Fachgebiete:</strong> Kulturgeschichte, Literatur und allgemeine gesellschaftliche Zukunftsthemen.</p>
+                            <p><strong class="font-semibold text-gray-900">Ansatz für "Klima-Wahrheit":</strong> Recherche von "zurückgehaltenen Informationen", was einem investigativen, nicht einem wissenschaftlichen Ansatz entspricht.</p>
+                            <div class="mt-6 pt-4 border-t border-gray-200">
+                                <p class="text-lg font-semibold text-red-600">Schlussfolgerung: Trotz eines Physikstudiums sind keine begutachteten Publikationen oder eine Spezialisierung in der Klimawissenschaft ersichtlich.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-8 rounded-xl shadow-lg border border-gray-200">
+                        <h3 class="text-2xl font-bold text-gray-800 mb-4">Das Buch: "Klima-Wahrheit"</h3>
+                        <div class="space-y-3 text-gray-700">
+                            <p><strong class="font-semibold text-gray-900">Kernthesen:</strong></p>
+                            <ul class="list-disc list-inside ml-4 space-y-1">
+                                <li>Betonung natürlicher Klimazyklen.</li>
+                                <li>Behauptung einer "globalen CO2-Klimakampagne".</li>
+                                <li>Begrenzter Einfluss von CO2 auf das Klima.</li>
+                                <li>Kritik an der Energiewende.</li>
+                            </ul>
+                             <p class="mt-4"><strong class="font-semibold text-gray-900">Verlag:</strong> Gerhard Hess Verlag, der als "extrem rechter Buchverlag" mit Verbindungen zur AfD identifiziert wird.</p>
+                            <div class="mt-6 pt-4 border-t border-gray-200">
+                                <p class="text-lg font-semibold text-red-600">Schlussfolgerung: Die Thesen und der verlegerische Kontext positionieren das Buch im Bereich der politisch motivierten Klimaskepsis.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="faktencheck" class="py-20 md:py-24 bg-white">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl font-bold text-gray-900">Interaktiver Faktencheck</h2>
+                    <p class="mt-3 text-lg text-gray-600 max-w-3xl mx-auto">Wählen Sie eine der Kernthesen aus "Klima-Wahrheit", um sie direkt mit den Fakten aus der etablierten Klimawissenschaft zu vergleichen.</p>
+                </div>
+                <div class="flex flex-wrap justify-center gap-3 mb-12">
+                     <button data-thesis="these1" class="thesis-btn bg-blue-100 text-blue-800 font-semibold py-2 px-4 rounded-full hover:bg-blue-200 transition active">Natürliche Ursachen & CO2-Einfluss</button>
+                     <button data-thesis="these2" class="thesis-btn bg-gray-100 text-gray-800 font-semibold py-2 px-4 rounded-full hover:bg-gray-200 transition">"CO2-Klimakampagne"</button>
+                     <button data-thesis="these3" class="thesis-btn bg-gray-100 text-gray-800 font-semibold py-2 px-4 rounded-full hover:bg-gray-200 transition">Kritik an Energiewende</button>
+                </div>
+
+                <div id="thesis-content" class="space-y-8">
+                    <div id="these1" class="thesis-details">
+                        <div class="grid md:grid-cols-2 gap-8">
+                            <div class="bg-amber-50 border border-amber-200 p-6 rounded-lg">
+                                <h4 class="text-xl font-bold text-amber-800 mb-3"> Behauptung 1: Natürliche Ursachen dominieren, CO2-Einfluss ist begrenzt</h4>
+                                <p class="text-gray-700">Das Buch hebt "natürliche Ursachen des Klimawandels und den begrenzten Einfluss von CO2" hervor und impliziert, dass Faktoren wie die Sonne die Haupttreiber sind.</p>
+                            </div>
+                            <div class="bg-emerald-50 border border-emerald-200 p-6 rounded-lg">
+                                <h4 class="text-xl font-bold text-emerald-800 mb-3"><span class="mr-2">✔️</span> Wissenschaftlicher Fakt</h4>
+                                <p class="text-gray-700">Der IPCC schreibt die gesamte beobachtete Erwärmung von 1.1°C seit der vorindustriellen Zeit menschlichen Aktivitäten zu. Natürliche Faktoren (inkl. Sonne) können die rasante Erwärmung nicht erklären.</p>
+                            </div>
+                        </div>
+                        <div class="mt-12">
+                             <h4 class="text-xl font-bold text-center text-gray-800 mb-4">Globale Temperatur vs. CO2-Konzentration & Sonnenaktivität</h4>
+                             <div class="chart-container">
+                                <canvas id="tempVsCo2Chart"></canvas>
+                            </div>
+                            <p class="text-center text-sm text-gray-500 mt-2">Die Grafik zeigt die starke Korrelation zwischen Temperatur und CO2, während die Sonnenaktivität keinen Erwärmungstrend aufweist.</p>
+                        </div>
+                    </div>
+                    <div id="these2" class="thesis-details hidden">
+                        <div class="grid md:grid-cols-2 gap-8">
+                            <div class="bg-amber-50 border border-amber-200 p-6 rounded-lg">
+                                <h4 class="text-xl font-bold text-amber-800 mb-3"> Behauptung 2: Es gibt eine "tabuisierte CO2-Klimakampagne"</h4>
+                                <p class="text-gray-700">Das Buch spricht von "tabuisierten Hintergründen" und einer "globalen CO2-Klimakampagne", was eine Verschwörung oder unterdrückte Informationen suggeriert.</p>
+                            </div>
+                            <div class="bg-emerald-50 border border-emerald-200 p-6 rounded-lg">
+                                <h4 class="text-xl font-bold text-emerald-800 mb-3"><span class="mr-2">✔️</span> Wissenschaftlicher Fakt</h4>
+                                <p class="text-gray-700">Der wissenschaftliche Konsens entsteht durch einen transparenten, globalen Prozess aus Tausenden von begutachteten Studien (Peer-Review). Die Behauptung einer "Kampagne" widerspricht der offenen Natur der Wissenschaft.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="these3" class="thesis-details hidden">
+                        <div class="grid md:grid-cols-2 gap-8">
+                            <div class="bg-amber-50 border border-amber-200 p-6 rounded-lg">
+                                <h4 class="text-xl font-bold text-amber-800 mb-3"> Behauptung 3: Die Energiewende ist falsch, andere Probleme sind wichtiger</h4>
+                                <p class="text-gray-700">Das Buch kritisiert die Energiewende und fordert, den Fokus von der "einseitigen Klimafixierung" auf andere "akutere Probleme" zu lenken.</p>
+                            </div>
+                            <div class="bg-emerald-50 border border-emerald-200 p-6 rounded-lg">
+                                <h4 class="text-xl font-bold text-emerald-800 mb-3"><span class="mr-2">✔️</span> Wissenschaftlicher Fakt</h4>
+                                <p class="text-gray-700">Der Klimawandel wird als eine der größten Sicherheits- und Existenzbedrohungen unserer Zeit eingestuft, die viele andere Krisen (Ressourcen, Migration, Gesundheit) verschärft. Eine Energiewende ist zur Risikominderung unerlässlich.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="konsens" class="py-20 md:py-24">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl font-bold text-gray-900">Der überwältigende wissenschaftliche Konsens</h2>
+                    <p class="mt-3 text-lg text-gray-600 max-w-2xl mx-auto">Die Klimawissenschaft basiert nicht auf Meinungen, sondern auf jahrzehntelanger, weltweit überprüfter Forschung.</p>
+                </div>
+                <div class="grid md:grid-cols-2 gap-12 items-center">
+                    <div class="text-left">
+                        <h3 class="text-2xl font-bold text-gray-800 mb-4">Was bedeutet "Konsens"?</h3>
+                        <p class="text-gray-700 mb-4">Ein wissenschaftlicher Konsens ist keine 100-prozentige Einstimmigkeit, sondern die kollektive Position von Wissenschaftlern in einem Fachgebiet, die nach kumulativer Evidenz und Debatte erreicht wird. Im Fall des Klimawandels ist dieser Konsens außergewöhnlich stark.</p>
+                        <ul class="space-y-3 text-gray-700">
+                            <li class="flex items-start">
+                                <span class="text-blue-600 font-bold mr-3 mt-1">→</span>
+                                <div><strong class="font-semibold text-gray-900">IPCC als Goldstandard:</strong> Der Weltklimarat (IPCC) fasst alle paar Jahre den Stand der Wissenschaft aus Tausenden von Studien zusammen. Seine Berichte werden von Hunderten Experten und allen Regierungen geprüft.</div>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-blue-600 font-bold mr-3 mt-1">→</span>
+                                <div><strong class="font-semibold text-gray-900">Nationale Akademien:</strong> Nahezu jede nationale Wissenschaftsakademie der Welt bestätigt den menschengemachten Klimawandel und fordert dringendes Handeln.</div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-xl font-bold text-center text-gray-800 mb-4">Anteil der Klimaexperten, die dem Konsens zustimmen</h4>
+                        <div class="chart-container" style="height: 300px; max-height: 350px;">
+                            <canvas id="consensusChart"></canvas>
+                        </div>
+                        <p class="text-center text-sm text-gray-500 mt-2">Mehrere Studien bestätigen, dass ca. 97% der publizierenden Klimawissenschaftler darin übereinstimmen, dass die globale Erwärmung primär menschengemacht ist.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="fazit" class="py-20 md:py-24 bg-white">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold text-gray-900">Fazit der Analyse</h2>
+                    <p class="mt-3 text-lg text-gray-600 max-w-2xl mx-auto">Die Gegenüberstellung zeigt eine klare Diskrepanz zwischen den Thesen in "Klima-Wahrheit" und dem Stand der Wissenschaft.</p>
+                </div>
+                <div class="max-w-4xl mx-auto bg-blue-50 border border-blue-200 rounded-xl p-8">
+                    <h3 class="text-2xl font-bold text-blue-900 mb-4">Gesamteinschätzung</h3>
+                    <div class="space-y-4 text-gray-800">
+                        <p><strong class="font-semibold">Fehlende Expertise:</strong> Der Autor, Dr. Werner Huber, ist Physiker, aber seine Expertise und Publikationen liegen nicht im Bereich der Klimawissenschaft. Sein Ansatz, "zurückgehaltene Informationen" zu suchen, ist unvereinbar mit dem transparenten wissenschaftlichen Prozess.</p>
+                        <p><strong class="font-semibold">Wissenschaftlich widerlegte Thesen:</strong> Die Kernthesen des Buches (dominante natürliche Ursachen, geringer CO2-Einfluss, "CO2-Kampagne") stehen in direktem Widerspruch zum überwältigenden, auf Beweisen basierenden wissenschaftlichen Konsens.</p>
+                        <p><strong class="font-semibold">Ideologischer Kontext:</strong> Das Buch wird von einem Verlag publiziert, der dem extrem rechten politischen Spektrum zugeordnet wird. Seine Argumente sind typische Narrative der organisierten Klimawandelleugnung und dienen eher politischen als wissenschaftlichen Zielen.</p>
+                        <div class="mt-6 pt-4 border-t border-blue-200">
+                            <p class="text-lg font-bold text-blue-900">Abschließend lässt sich sagen, dass "Klima-Wahrheit" nicht den Stand der Wissenschaft widerspiegelt, sondern diesen aktiv bekämpft und Desinformation verbreitet. Es ist ein Beitrag zum politischen Diskurs der Klimaskepsis, keine wissenschaftliche Publikation.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white">
+        <div class="container mx-auto py-6 px-4 sm:px-6 lg:px-8 text-center text-sm">
+            <p>&copy; 2025 Interaktive Analyse. Alle Inhalte basieren auf dem bereitgestellten Recherchebericht.</p>
+            <p class="text-gray-400 mt-1">Diese Seite dient der Veranschaulichung und Aufklärung.</p>
+        </div>
+    </footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    
+    const thesisButtons = document.querySelectorAll('.thesis-btn');
+    const thesisDetails = document.querySelectorAll('.thesis-details');
+
+    thesisButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const targetId = button.dataset.thesis;
+
+            thesisButtons.forEach(btn => {
+                btn.classList.remove('active', 'bg-blue-100', 'text-blue-800');
+                btn.classList.add('bg-gray-100', 'text-gray-800');
+            });
+            
+            button.classList.add('active', 'bg-blue-100', 'text-blue-800');
+            button.classList.remove('bg-gray-100', 'text-gray-800');
+
+            thesisDetails.forEach(detail => {
+                if (detail.id === targetId) {
+                    detail.classList.remove('hidden');
+                } else {
+                    detail.classList.add('hidden');
+                }
+            });
+        });
+    });
+
+    const sections = document.querySelectorAll('section');
+    const navLinks = document.querySelectorAll('.nav-link');
+
+    const observerOptions = {
+        root: null,
+        rootMargin: '0px',
+        threshold: 0.5
+    };
+
+    const observer = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const id = entry.target.getAttribute('id');
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href') === `#${id}`) {
+                        link.classList.add('active');
+                    }
+                });
+            }
+        });
+    }, observerOptions);
+
+    sections.forEach(section => {
+        observer.observe(section);
+    });
+
+    const tempVsCo2Ctx = document.getElementById('tempVsCo2Chart').getContext('2d');
+    const tempVsCo2Chart = new Chart(tempVsCo2Ctx, {
+        type: 'line',
+        data: {
+            labels: ['1880', '1900', '1920', '1940', '1960', '1980', '2000', '2020'],
+            datasets: [
+                {
+                    label: 'Temperaturabweichung (°C)',
+                    data: [-0.2, -0.1, -0.25, 0.05, 0.0, 0.25, 0.6, 1.1],
+                    borderColor: 'rgb(239, 68, 68)',
+                    backgroundColor: 'rgba(239, 68, 68, 0.2)',
+                    yAxisID: 'y',
+                    tension: 0.1,
+                    borderWidth: 2,
+                },
+                {
+                    label: 'CO2-Konzentration (ppm)',
+                    data: [290, 296, 303, 309, 317, 338, 369, 414],
+                    borderColor: 'rgb(59, 130, 246)',
+                    backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                    yAxisID: 'y1',
+                    tension: 0.1,
+                    borderWidth: 2,
+                },
+                {
+                    label: 'Sonnenaktivität (TSI Watt/m²)',
+                    data: [1365.5, 1365.6, 1365.8, 1366.1, 1365.9, 1365.7, 1365.6, 1365.5],
+                    borderColor: 'rgb(245, 158, 11)',
+                    backgroundColor: 'rgba(245, 158, 11, 0.2)',
+                    yAxisID: 'y2',
+                    tension: 0.1,
+                    borderWidth: 2,
+                    borderDash: [5, 5],
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
+            scales: {
+                y: {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    title: {
+                        display: true,
+                        text: 'Temperatur (°C)'
+                    }
+                },
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    grid: {
+                        drawOnChartArea: false,
+                    },
+                    title: {
+                        display: true,
+                        text: 'CO2 (ppm)'
+                    }
+                },
+                y2: {
+                    type: 'linear',
+                    display: false, 
+                    min: 1365,
+                    max: 1367
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.y !== null) {
+                                label += context.parsed.y;
+                                if(context.dataset.label.includes('Temperatur')) label += ' °C';
+                                if(context.dataset.label.includes('CO2')) label += ' ppm';
+                                if(context.dataset.label.includes('Sonnenaktivität')) label += ' W/m²';
+                            }
+                            return label;
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    const consensusCtx = document.getElementById('consensusChart').getContext('2d');
+    const consensusChart = new Chart(consensusCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Stimmen dem Konsens zu', 'Andere Meinung / Unsicher'],
+            datasets: [{
+                data: [97, 3],
+                backgroundColor: [
+                    'rgb(22, 163, 74)',
+                    'rgb(229, 231, 235)'
+                ],
+                borderColor: [
+                    'rgb(255, 255, 255)',
+                    'rgb(255, 255, 255)'
+                ],
+                borderWidth: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                },
+                title: {
+                    display: false,
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.label + ': ' + context.raw + '%';
+                        }
+                    }
+                }
+            },
+            cutout: '60%'
+        }
+    });
+
+});
+</script>
+</body>
+</html>
