@@ -11,7 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <!-- Chosen Palette: Calm Harmony -->
     <!-- Application Structure Plan: A multi-section, single-page application navigated by a top bar. The structure is designed to guide the user through a critical evaluation: 1. Introduction (setting the stage), 2. Author & Book Profile (juxtaposing credentials vs. claims), 3. Interactive Fact-Check (directly comparing theses to scientific consensus with visuals), 4. The Consensus Explained (detailing the scientific agreement), 5. Conclusion (summarizing the findings). This thematic structure prioritizes comparison and critical analysis over the linear format of the source report, making the core contradictions more accessible and understandable for the user. -->
-    <!-- Visualization & Content Choices: Report Info -> Goal -> Viz/Presentation Method -> Interaction -> Justification -> Library/Method. 1. Author's lack of expertise vs. book's claims -> Inform -> Side-by-side profile cards -> Static display -> Highlights the mismatch between author's background and subject matter -> HTML/CSS. 2. Book's thesis on CO2 vs. reality -> Compare/Refute -> Interactive line chart showing Temperature vs. CO2 vs. Solar Activity -> User can see the strong correlation between CO2/temp and the lack of correlation with solar -> Visually debunks a key claim -> Chart.js/Canvas. 3. Scientific consensus level -> Inform -> Donut chart showing 97% agreement -> Click/Hover -> Provides immediate, powerful visual impact of the overwhelming consensus -> Chart.js/Canvas. 4. Book's theses vs. scientific facts -> Compare/Organize -> Interactive tab/card system -> User clicks a claim to reveal a side-by-side refutation -> Breaks down the complex report into digestible, focused comparisons -> HTML/CSS/JS. -->
+    <!-- Visualization & Content Choices: Report Info -> Goal -> Viz/Presentation Method -> Interaction -> Justification -> Library/Method. 1. Author's lack of expertise vs. book's claims -> Inform -> Side-by-side profile cards -> Static display -> Highlights the mismatch between author's background and subject matter -> HTML/CSS. 2. Book's thesis on CO2 vs. reality -> Compare/Refute -> Interactive line chart showing Temperature vs. CO2 vs. Solar Activity -> User can see the strong correlation between CO2/temp and the lack of correlation with solar -> Visually debunks a key claim -> Chart.js/Canvas. 3. Scientific consensus level -> Inform -> Donut chart showing 97% agreement -> Click/Hover -> Provides immediate, powerful visual impact of the overwhelming consensus -> Chart.js/Canvas. 4. Book's theses vs. scientific facts -> Compare/Organize -> Interactive tab/card system -> User clicks a claim to reveal a side-by-side refutation -> Breaks down the complex report into digestible, focused comparisons -> HTML/CSS/JS. 5. User-inputted climate claim -> Explain/Refute -> LLM-generated scientific explanation/counter-argument -> User inputs text and clicks button to get explanation -> Provides on-demand, dynamic debunking/clarification using Gemini API -> Gemini API. -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
         body {
@@ -39,6 +39,17 @@
             .chart-container {
                 height: 400px;
             }
+        }
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: #3b82f6;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
     </style>
 </head>
@@ -170,6 +181,25 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="mt-20 pt-12 border-t border-gray-200">
+                    <h3 class="text-2xl font-bold text-gray-900 text-center mb-6">✨ Wissenschaftliche Erklärung anfordern ✨</h3>
+                    <p class="mt-3 text-lg text-gray-600 max-w-3xl mx-auto text-center">Geben Sie eine klimabezogene Behauptung oder Frage ein und erhalten Sie eine prägnante, wissenschaftlich fundierte Erklärung.</p>
+                    <div class="max-w-2xl mx-auto mt-8 bg-blue-50 border border-blue-200 p-6 rounded-xl shadow-md">
+                        <label for="climateClaimInput" class="block text-gray-700 text-sm font-bold mb-2">Ihre Behauptung / Frage:</label>
+                        <textarea id="climateClaimInput" rows="4" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-500 transition-colors duration-200" placeholder="Z.B. 'Ist der Klimawandel nicht nur ein natürlicher Zyklus?' oder 'Was ist der Treibhauseffekt?'"></textarea>
+                        <button id="generateExplanationBtn" class="mt-4 bg-blue-600 text-white font-bold py-2 px-6 rounded-full hover:bg-blue-700 transition-colors duration-300 flex items-center justify-center">
+                            <span id="buttonText">Erklärung generieren</span>
+                            <div id="loadingIndicator" class="spinner ml-3 hidden"></div>
+                        </button>
+                        <div id="llmResponse" class="mt-6 p-4 bg-white border border-gray-300 rounded-lg text-gray-800 hidden">
+                            <!-- LLM response will be displayed here -->
+                        </div>
+                        <div id="errorMessage" class="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg hidden">
+                            <!-- Error messages will be displayed here -->
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -230,6 +260,15 @@
         <div class="container mx-auto py-6 px-4 sm:px-6 lg:px-8 text-center text-sm">
             <p>&copy; 2025 Interaktive Analyse. Alle Inhalte basieren auf dem bereitgestellten Recherchebericht.</p>
             <p class="text-gray-400 mt-1">Diese Seite dient der Veranschaulichung und Aufklärung.</p>
+
+<h1>Impressum</h1>
+
+<p class="text-gray-400 mt-1">Ruben Schwarz Alemannestr. 15 75391 Gechingen</p>
+
+<p class="text-gray-400 mt-1">Kontakt</p>
+<p class="text-gray-400 mt-1">E-Mail: info@schwarzpost.de</p>
+
+        <p class="text-gray-400 mt-1">Quelle: <a href="https://www.e-recht24.de">https://www.e-recht24.de</a></p>
         </div>
     </footer>
 
@@ -422,7 +461,69 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Gemini API Integration
+    const climateClaimInput = document.getElementById('climateClaimInput');
+    const generateExplanationBtn = document.getElementById('generateExplanationBtn');
+    const llmResponseDiv = document.getElementById('llmResponse');
+    const loadingIndicator = document.getElementById('loadingIndicator');
+    const buttonText = document.getElementById('buttonText');
+    const errorMessageDiv = document.getElementById('errorMessage');
+
+    generateExplanationBtn.addEventListener('click', async () => {
+        const prompt = climateClaimInput.value.trim();
+        if (!prompt) {
+            llmResponseDiv.classList.add('hidden');
+            errorMessageDiv.textContent = 'Bitte geben Sie eine Behauptung oder Frage ein.';
+            errorMessageDiv.classList.remove('hidden');
+            return;
+        }
+
+        llmResponseDiv.classList.add('hidden');
+        errorMessageDiv.classList.add('hidden');
+        loadingIndicator.classList.remove('hidden');
+        buttonText.textContent = 'Generiere...';
+        generateExplanationBtn.disabled = true;
+
+        try {
+            let chatHistory = [];
+            chatHistory.push({ role: "user", parts: [{ text: `Bitte gib eine prägnante, wissenschaftlich fundierte Erklärung oder Gegenargument zu folgender klimabezogener Aussage/Frage. Beziehe dich auf den aktuellen Stand der Klimawissenschaft (z.B. IPCC-Berichte, Konsensforschung) und vermeide Fachjargon, wo möglich. Antworte in deutscher Sprache:\n\n"${prompt}"` }] });
+            const payload = { contents: chatHistory };
+            const apiKey = ""; // If you want to use models other than gemini-2.0-flash or imagen-3.0-generate-002, provide an API key here. Otherwise, leave this as-is.
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+            
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            const result = await response.json();
+
+            if (result.candidates && result.candidates.length > 0 &&
+                result.candidates[0].content && result.candidates[0].content.parts &&
+                result.candidates[0].content.parts.length > 0) {
+                const text = result.candidates[0].content.parts[0].text;
+                llmResponseDiv.textContent = text;
+                llmResponseDiv.classList.remove('hidden');
+            } else {
+                errorMessageDiv.textContent = 'Es gab ein Problem bei der Generierung der Antwort. Bitte versuchen Sie es später erneut.';
+                errorMessageDiv.classList.remove('hidden');
+                console.error('Unexpected API response structure:', result);
+            }
+        } catch (error) {
+            errorMessageDiv.textContent = 'Fehler beim Verbinden mit dem Server. Bitte überprüfen Sie Ihre Internetverbindung oder versuchen Sie es später erneut.';
+            errorMessageDiv.classList.remove('hidden');
+            console.error('Fetch error:', error);
+        } finally {
+            loadingIndicator.classList.add('hidden');
+            buttonText.textContent = 'Erklärung generieren';
+            generateExplanationBtn.disabled = false;
+        }
+    });
+
 });
 </script>
 </body>
 </html>
+
+
